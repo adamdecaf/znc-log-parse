@@ -106,6 +106,7 @@ func parse(body string) []string {
 		for k := range keepfns {
 			if keepfns[k](lines[i]) {
 				kept = append(kept, lines[i])
+				continue
 			}
 		}
 	}
@@ -116,7 +117,7 @@ func parse(body string) []string {
 // regex matching
 var (
 	tsr = `\[\d\d:\d\d:\d\d\][\s]*`
-	msgr = `([\w\s]+)`
+	msgr = `.+`
 
 	joinr = regexp.MustCompile(tsr + `\*{3} Joins: ` + msgr)
 	partr = regexp.MustCompile(tsr + `\*{3} Parts: ` + msgr)
