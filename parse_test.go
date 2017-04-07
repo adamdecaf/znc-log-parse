@@ -36,7 +36,7 @@ func TestParsing__Part(t *testing.T) {
 	}
 
 	// negative match
-	if isJoin("bad") {
+	if isPart("bad") {
 		t.Fatal("'bad' is not a part")
 	}
 }
@@ -55,7 +55,7 @@ func TestParsing__Quit(t *testing.T) {
 	}
 
 	// negative match
-	if isJoin("bad") {
+	if isQuit("bad") {
 		t.Fatal("'bad' is not a quit")
 	}
 }
@@ -72,7 +72,23 @@ func TestParsing__Rename(t *testing.T) {
 	}
 
 	// negative match
-	if isJoin("bad") {
+	if isRename("bad") {
 		t.Fatal("'bad' is not a rename")
+	}
+}
+
+func TestParsing__Message(t *testing.T) {
+	exs := []string{
+		"[14:36:32] <adamdecaf> They come with a bunch more problems though",
+	}
+	for i := range exs {
+		if !isMessage(exs[i]) {
+			t.Fatalf("msg not matched -- %s", exs[i])
+		}
+	}
+
+	// negative match
+	if isMessage("bad") {
+		t.Fatal("'bad' is not a msg")
 	}
 }

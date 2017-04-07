@@ -60,8 +60,6 @@ func walk(path string, info os.FileInfo, err error) error {
 		return nil
 	}
 
-	fmt.Println(path)
-
 	b, err := ioutil.ReadFile(path)
 	if err != nil {
 		return err
@@ -80,10 +78,6 @@ func walk(path string, info os.FileInfo, err error) error {
 	return nil
 }
 
-func nonEmpty(s string) bool {
-	return len(strings.TrimSpace(s)) > 0
-}
-
 func parse(body string) []string {
 	keepfns := make([]func(string) bool, 0)
 	for i := range keeps {
@@ -98,7 +92,7 @@ func parse(body string) []string {
 			keepfns = append(keepfns, isRename)
 		}
 	}
-	keepfns = append(keepfns, nonEmpty) // todo: better matching on '<user> blah...'
+	keepfns = append(keepfns, isMessage)
 
 	kept := make([]string, 0)
 	lines := strings.Split(body, "\n")
@@ -106,7 +100,7 @@ func parse(body string) []string {
 		for k := range keepfns {
 			if keepfns[k](lines[i]) {
 				kept = append(kept, lines[i])
-				continue
+				break
 			}
 		}
 	}
@@ -123,9 +117,10 @@ var (
 	partr = regexp.MustCompile(tsr + `\*{3} Parts: ` + msgr)
 	quitr = regexp.MustCompile(tsr + `\*{3} Quits: ` + msgr)
 	renamer = regexp.MustCompile(tsr + `\*{3} \w+ is now known as \w+`)
+	messager = regexp.MustCompile(tsr + `<[\w_]+>` + msgr)
 )
 
-// Message examples
+// Message examples, more in parse_test.go
 // [02:33:31] *** Joins: adam (adam@Snoonet-fdl.i3c.1b1g5k.IP)
 // [14:36:32] <adamdecaf> They come with a bunch more problems though
 // [03:14:57] *** Parts: bo4tdude[penis] (Bo4t@user/bo4tdude) (Leaving)
@@ -143,6 +138,9 @@ func isQuit(line string) bool {
 }
 func isRename(line string) bool {
 	return renamer.MatchString(line)
+}
+func isMessage(line string) bool {
+	return messager.MatchString(line)
 }
 
 func fail(msg string) {
